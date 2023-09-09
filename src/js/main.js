@@ -5,18 +5,6 @@ function copyRight() {
 }
 copyRight();
 
-import './jquery-3.7.1.min.js';
-import './jquery.animateNumber.min.js';
-import './jquery.easing.min.js';
-import magnificPopup from './jquery.magnific-popup.min.js'
-import './jquery.stellar.min.js';
-import './owl.carousel.min.js';
-import './popper.min.js';
-import './scrollax.min.js';
-import './aos.js';
-import './bootstrap.min.js';
-
-
 AOS.init({
 	duration: 800,
 	easing: 'slide'
