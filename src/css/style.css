@@ -14002,12 +14002,22 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
   position: relative
 }
 
+.parent{
+  width: 50vw;
+  height: 75vh;
+  position: relative;
+}
+
+.snapshot{
+  width: 100%;
+  height: 100%;
+  position: absolute;
+}
+
 svg {
-  /* overflow: visible; */
-  /* vertical-align: middle; */
-  /* width: 100%; */
-  display: block;
-  margin: auto;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   fill: currentColor;
   pointer-events: none;
   -webkit-transform: translate(0);
@@ -14042,12 +14052,13 @@ figure{
     font-size: .875rem
   }
   svg{
-    overflow: visible;
-    display: block;
-    margin: auto;
-  }
-  .snapshot h3{
-    position: absolute;
+    /* overflow: visible; */
+    /* display: block; */
+    /* margin: auto; */
+    width: 75vw;
+    height: 50vh;
+    /* transform: scale(1.5); */
+    transform: translateX(0)
   }
 }
 
