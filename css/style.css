@@ -4940,6 +4940,10 @@ input[type="button"].btn-block {
   background-size: 100% 100%;
 }
 
+.oi{
+  color: #fff;
+}
+
 @media (max-width: 575.98px) {
 
   .navbar-expand-sm>.container,
@@ -12093,6 +12097,11 @@ h5,
   opacity: .4;
 }
 
+.owl-carousel .owl-stage, .owl-carousel.owl-drag .owl-item{
+  -ms-touch-action: auto;
+  touch-action: auto;
+}
+
 .owl-carousel .owl-item.active {
   opacity: 1;
 }
@@ -14004,7 +14013,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 
 .parent{
   width: 50vw;
-  height: 75vh;
+  height: 60vh;
   position: relative;
 }
 
@@ -14051,14 +14060,22 @@ figure{
   .sorted-article-content {
     font-size: .875rem
   }
-  svg{
-    /* overflow: visible; */
-    /* display: block; */
-    /* margin: auto; */
-    width: 75vw;
+  .parent{
+    width: 50vw;
     height: 50vh;
-    /* transform: scale(1.5); */
-    transform: translateX(0)
+    position: relative;
+  }
+  
+  .snapshot{
+    width: 100%;
+    height: 100%;
+    position: absolute;
+  }
+  svg{
+    overflow: hidden;
+    width: 100%;
+    height: 100%;
+    transform: scale(1.5) translate(20%, 0%);
   }
 }
 
