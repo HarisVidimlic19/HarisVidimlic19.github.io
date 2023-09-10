@@ -14012,9 +14012,11 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 }
 
 .parent{
-  width: 50vw;
-  height: 60vh;
+  height: 65vh;
   position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .snapshot{
@@ -14024,7 +14026,6 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 }
 
 svg {
-  justify-content: center;
   width: 100%;
   height: 100%;
   fill: currentColor;
@@ -14032,7 +14033,7 @@ svg {
   -webkit-transform: translate(0);
   -ms-transform: translate(0);
   transform: translate(0);
-  text-align: center
+
 }
 
 img {
@@ -14059,23 +14060,6 @@ figure{
 @media(max-width: 1199px){
   .sorted-article-content {
     font-size: .875rem
-  }
-  .parent{
-    width: 50vw;
-    height: 50vh;
-    position: relative;
-  }
-  
-  .snapshot{
-    width: 100%;
-    height: 100%;
-    position: absolute;
-  }
-  svg{
-    overflow: hidden;
-    width: 100%;
-    height: 100%;
-    transform: scale(1.5) translate(20%, 0%);
   }
 }
 
