@@ -3,7 +3,7 @@ const fs = require('fs');
 
 (async () => {
     // Launch a headless browser instance
-    const browser = await stats.puppeteer.launch({
+    const browser = await puppeteer.launch({
         executablePath: process.env.CHROME_BIN || null,
     });
 
