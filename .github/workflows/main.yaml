@@ -29,8 +29,8 @@ jobs:
       - uses: actions/checkout@v3
       - name: Push changes
         run: |
-          git config --global user.name 'Your Name'
-          git config --global user.email 'your-username@users.noreply.github.com'
+          git config --global user.name 'HarisVidimlic19'
+          git config --global user.email 'hvidimlic1234@hotmail.com'
           git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
           git checkout "${GITHUB_REF:11}"
           git add -A
