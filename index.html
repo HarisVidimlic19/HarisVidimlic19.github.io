@@ -67,8 +67,9 @@
 								<span class="subheading">Hello!</span>
 								<h1 class="mb-4 mt-3">I'm <span>Haris Vidimlic</span></h1>
 								<h2 class="mb-4">A Graduated Physicist and Aspiring Software Developer</h2>
-								<p><a href="#contact-section" class="btn btn-primary py-3 px-4">Hire me</a> <a href="#projects-section"
-										class="btn btn-white btn-outline-white py-3 px-4">My works</a></p>
+								<p><a href="#contact-section" class="btn btn-primary py-3 px-4">Hire me</a> <a
+										href="#projects-section" class="btn btn-white btn-outline-white py-3 px-4">My
+										works</a></p>
 							</div>
 						</div>
 					</div>
@@ -89,8 +90,9 @@
 							<div class="text">
 								<span class="subheading">Hello!</span>
 								<h1 class="mb-4 mt-3">I'm a <span>programmer</span> based in Ontario</h1>
-								<p><a href="#contact-section" class="btn btn-primary py-3 px-4">Hire me</a> <a href="#projects-section"
-										class="btn btn-white btn-outline-white py-3 px-4">My works</a></p>
+								<p><a href="#contact-section" class="btn btn-primary py-3 px-4">Hire me</a> <a
+										href="#projects-section" class="btn btn-white btn-outline-white py-3 px-4">My
+										works</a></p>
 							</div>
 						</div>
 					</div>
@@ -166,29 +168,43 @@
 					</div>
 				</div>
 			</div>
-			<div class="row d-flex">
-				<div class="col-md-4">
+			<div class="row">
+				<div class="col-md-4 sidebartext">
 					<h3>Real-Time 2D Solar System</h3>
 					<p>
 						This is a real-time snapshot of the Solar System showcasing the major celestial bodies.
 						Their position from the Sun depend on the day of viewing. The data is taken from the NASA
 						Horizons
-						System. The sizes of the planets (excluding the Sun) and distances from the Sun are accurate
+						System and updated daily. The sizes of the planets (excluding the Sun) and distances from the
+						Sun are accurate
 						but scaled
 						down by a factor of 10<sup>8</sup> for visualization purposes. The orbits of the planets are
 						also
-						accurate given their orbital elements and scaled down by the same distance factor. The data
-						is updated daily.
+						accurate given their orbital elements and scaled down by the same distance factor.
+					</p>
+					<p>
+						Unique colours represent separate planets. Due to the visualization limitations and scale of
+						certain page sizes,
+						some bodies and orbits are hidden from the viewer. Outward from the center, the representations
+						are as follows:
+					<ul>
+						<li><span style="color: yellow">The Sun</span></li>
+						<li><span style="color: red">Mercury</span></li>
+						<li><span style="color: #FDBF01">Venus</span></li>
+						<li><span style="color: #417B38">Earth</span></li>
+						<li><span style="color:#F97A05">Mars</span></li>
+						<li><span style="color:#C1844D">Jupiter</span></li>
+						<li><span style="color: #7B7869">Saturn</span></li>
+						<li><span style="color: #D3F9FA">Uranus</span></li>
+						<li><span style="color: #537CFE">Neptune</span></li>
+					</ul>
 					</p>
 				</div>
 				<div class="parent col-md-8">
-					<div class="snapshot">
-						<svg class="" xmlns="http://www.w3.org/2000/svg" id="solarSystemSVG"></svg>
-					</div>
+					<svg xmlns="http://www.w3.org/2000/svg" id="solarSystemSVG"
+						preserveAspectRatio="xMidYMid meet"></svg>
 				</div>
 			</div>
-			<div id="spacer"></div>
-		</div>
 	</section>
 
 	<section class="ftco-section ftco-no-pb" id="resume-section">
@@ -642,7 +658,9 @@
 
 			<div class="row no-gutters block-9" id="contact-form">
 				<div class="col-md-6 order-md-last d-flex">
-					<form action="&#109;&#097;&#105;&#108;&#116;&#111;:&#104;&#097;&#114;&#105;&#115;&#046;&#118;&#105;&#100;&#105;&#109;&#108;&#105;&#099;&#064;&#097;&#108;&#117;&#109;&#110;&#105;&#046;&#117;&#098;&#099;&#046;&#099;&#097;" method="post" enctype="application/x-www-form-urlencoded"
+					<form
+						action="&#109;&#097;&#105;&#108;&#116;&#111;:&#104;&#097;&#114;&#105;&#115;&#046;&#118;&#105;&#100;&#105;&#109;&#108;&#105;&#099;&#064;&#097;&#108;&#117;&#109;&#110;&#105;&#046;&#117;&#098;&#099;&#046;&#099;&#097;"
+						method="post" enctype="application/x-www-form-urlencoded"
 						class="bg-light p-4 p-md-5 contact-form">
 						<div class="form-group">
 							<input type="text" class="form-control" placeholder="Your Name">
@@ -676,14 +694,7 @@
 			<div class="row mb-5">
 				<div class="col-md">
 					<div class="ftco-footer-widget mb-4">
-						<h2 class="ftco-heading-2">About</h2>
-						<p>I am a highly motivated and hardworking individual with a strong desire to learn and grow
-							professionally.
-							I have experience in the fields of Physics, Scientific Research and Software Development.
-							I enjoy working with others and can be a team player, but I am also comfortable working on
-							my own.
-							I am seeking a position where I can develop and excel while giving my best to my employer.
-						</p>
+						<h2 class="ftco-heading-2">Related Socials</h2>
 						<ul class="ftco-footer-social list-unstyled float-md-left float-lft mt-5">
 							<li class="ftco-animate"><a href="https://github.com/HarisVidimlic19"><span
 										class="icon-github"></span></a></li>

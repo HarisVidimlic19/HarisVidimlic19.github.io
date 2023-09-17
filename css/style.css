@@ -248,7 +248,7 @@ button:focus {
   outline: 5px auto -webkit-focus-ring-color;
 }
 
-.bckg-text{
+.bckg-text {
   color: #fff;
 }
 
@@ -4944,7 +4944,7 @@ input[type="button"].btn-block {
   background-size: 100% 100%;
 }
 
-.oi{
+.oi {
   color: #fff;
 }
 
@@ -12101,7 +12101,8 @@ h5,
   opacity: .4;
 }
 
-.owl-carousel .owl-stage, .owl-carousel.owl-drag .owl-item{
+.owl-carousel .owl-stage,
+.owl-carousel.owl-drag .owl-item {
   -ms-touch-action: auto;
   touch-action: auto;
 }
@@ -13976,7 +13977,7 @@ textarea.form-control {
   box-shadow: 0 0 2px 0 rgba(4, 4, 4, 0.8);
 
   margin: 0;
-  font-family: "Quicksand",sans-serif;
+  font-family: "Quicksand", sans-serif;
   font-size: 15px;
   font-weight: 500;
   line-height: 1.4;
@@ -13990,7 +13991,16 @@ textarea.form-control {
   padding-right: 1rem !important;
 }
 
-article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
+article,
+aside,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+main,
+nav,
+section {
   display: block;
 }
 
@@ -14005,8 +14015,8 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 
 @media all and (min-width:1200px) {
   .sorted-article-figure {
-      width: 175px;
-      height: 125px
+    width: 175px;
+    height: 125px
   }
 }
 
@@ -14015,29 +14025,50 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
   position: relative
 }
 
-.parent{
-  height: 65vh;
-  position: relative;
+.sidebartext {
+  padding-right: 0px;
+  padding-left: 0px;
+}
+
+.sidebartext ul li {
+  list-style: none;
+}
+
+.sidebartext ul {
+  display: grid;
+  grid-template-rows: repeat(3, min-content);
+  grid-auto-flow: column;
+}
+
+.parent {
   display: flex;
   justify-content: center;
   align-items: center;
+  width: 100%;
+  height: 85vh;
+  overflow: hidden;
+  padding-right: 0px;
+  padding-left: 0px;
 }
 
-.snapshot{
+svg#solarSystemSVG {
   width: 100%;
   height: 100%;
-  position: absolute;
+  display: block;
 }
 
-svg {
-  width: 100%;
-  height: 100%;
-  fill: currentColor;
-  pointer-events: none;
-  -webkit-transform: translate(0);
-  -ms-transform: translate(0);
-  transform: translate(0);
+.show {
+  display: block;
+}
 
+.hide {
+  display: block;
+}
+
+@media screen and (max-width: 768px) {
+  .hide {
+    display: none;
+  }
 }
 
 img {
@@ -14049,7 +14080,7 @@ img {
   user-select: none
 }
 
-figure{
+figure {
   margin: 0
 }
 
@@ -14057,11 +14088,13 @@ figure{
   line-height: 1.25;
 }
 
-.sorted-article-content h3, .sorted-article-content h4, .sorted-article-content h5 {
-  font-family: "Roboto",sans-serif;
+.sorted-article-content h3,
+.sorted-article-content h4,
+.sorted-article-content h5 {
+  font-family: "Roboto", sans-serif;
 }
 
-@media(max-width: 1199px){
+@media(max-width: 1199px) {
   .sorted-article-content {
     font-size: .875rem
   }
@@ -14069,7 +14102,7 @@ figure{
 
 .sorted-article-content>p {
   font-size: .9375rem;
-  font-family: "Open Sans",sans-serif;
+  font-family: "Open Sans", sans-serif;
 }
 
 .sorted-news-list {
@@ -14122,8 +14155,8 @@ figure{
 
 @media all and (max-width:1199px) {
   .sorted-article_tmb .size90 {
-      width: 50px;
-      height: 50px
+    width: 50px;
+    height: 50px
   }
 }
 
@@ -14138,7 +14171,7 @@ figure{
 
 @media all and (max-width:1199px) {
   .sorted-article_tmb .sorted-article-content>p {
-      font-size: .8125rem
+    font-size: .8125rem
   }
 }
 
@@ -14150,8 +14183,8 @@ figure{
 
 @media all and (min-width:1200px) {
   .sorted-article-small {
-      width: 70px !important;
-      height: 70px !important
+    width: 70px !important;
+    height: 70px !important
   }
 }
 
@@ -14167,13 +14200,13 @@ figure{
 
 @media all and (min-width:1200px) {
   .sorted-article-content h3 {
-      font-size: 1.375rem
+    font-size: 1.375rem
   }
 }
 
 @media all and (min-width:768px) and (max-width:959px) {
   .sorted-article-content h3 {
-      font-size: 1.3rem
+    font-size: 1.3rem
   }
 }
 
@@ -14184,7 +14217,7 @@ figure{
 
 @media all and (max-width:1199px) {
   .sorted-article-content>p {
-      font-size: .875rem
+    font-size: .875rem
   }
 }
 
@@ -14210,46 +14243,46 @@ figure{
 
 .article__info,
 .article__info-item {
-    display: -webkit-box;
-    display: -ms-flexbox;
-    display: flex
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex
 }
 
 .article__info-item {
-    -webkit-box-align: center;
-    -ms-flex-align: center;
-    align-items: center
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center
 }
 
 .article__info-fc a,
 .article__info-item p,
 .article__info-item svg {
-    color: #a5a6b7
+  color: #a5a6b7
 }
 
 .article__info-item p {
-    margin-bottom: 0;
-    font-weight: 500
+  margin-bottom: 0;
+  font-weight: 500
 }
 
 .article__info-icon {
-    height: 20px;
-    width: 20px;
-    margin-right: .5rem
+  height: 20px;
+  width: 20px;
+  margin-right: .5rem
 }
 
 .article__info a.article__info-item {
-    cursor: pointer
+  cursor: pointer
 }
 
 .article__info a.article__info-item:hover p,
 .article__info a.article__info-item:hover svg {
-    color: #4680ee
+  color: #4680ee
 }
 
 .article__info-fc a:hover,
 .article__info-fc svg {
-    color: #7da300
+  color: #7da300
 }
 
 .article__info a.article__info-item p,
@@ -14257,49 +14290,49 @@ figure{
 .header-account svg,
 .header-search__show svg,
 .sorted-article-figure>a:after {
-    -webkit-transition: all .3s ease;
-    -o-transition: all .3s ease;
-    transition: all .3s ease
+  -webkit-transition: all .3s ease;
+  -o-transition: all .3s ease;
+  transition: all .3s ease
 }
 
 .badge,
 .dropdown-menu svg {
-    display: inline-block;
-    vertical-align: baseline
+  display: inline-block;
+  vertical-align: baseline
 }
 
 .badge {
-    padding: .25em .4em;
-    font-size: 75%;
-    font-weight: 700;
-    line-height: 1;
-    text-align: center;
-    white-space: nowrap;
-    -webkit-border-radius: .25rem;
-    border-radius: .25rem;
-    border: 1px solid #a5a6b7
+  padding: .25em .4em;
+  font-size: 75%;
+  font-weight: 700;
+  line-height: 1;
+  text-align: center;
+  white-space: nowrap;
+  -webkit-border-radius: .25rem;
+  border-radius: .25rem;
+  border: 1px solid #a5a6b7
 }
 
 .a_editorial {
-    border: 1px solid #ed492d;
-    color: #ed492d
+  border: 1px solid #ed492d;
+  color: #ed492d
 }
 
 .a_report {
-    border: 1px solid #009df2;
-    color: #009df2
+  border: 1px solid #009df2;
+  color: #009df2
 }
 
 .a_weblog {
-    border: 1px solid #699d30;
-    color: #699d30
+  border: 1px solid #699d30;
+  color: #699d30
 }
 
 .badge-pm {
-    border-color: #bf2b53;
-    background-color: #bf2b53;
-    margin-left: -3px;
-    color: #fff
+  border-color: #bf2b53;
+  background-color: #bf2b53;
+  margin-left: -3px;
+  color: #fff
 }
 
 .news-link:visited {
@@ -14308,20 +14341,20 @@ figure{
 
 @media all and (-ms-high-contrast:none),
 (-ms-high-contrast:active) {
-    .ie-flex-1 {
-        -ms-flex: 1;
-        flex: 1
-    }
+  .ie-flex-1 {
+    -ms-flex: 1;
+    flex: 1
+  }
 
-    .ie-flex-column {
-        -ms-flex-preferred-size: auto;
-        -ms-flex-direction: column;
-        flex-direction: column
-    }
+  .ie-flex-column {
+    -ms-flex-preferred-size: auto;
+    -ms-flex-direction: column;
+    flex-direction: column
+  }
 
-    .d-ie-block {
-        display: block !important
-    }
+  .d-ie-block {
+    display: block !important
+  }
 }
 
 .scraper>h3 p {
@@ -14345,44 +14378,44 @@ canvas {
 
 @media all and (-ms-high-contrast:none),
 (-ms-high-contrast:active) {
-    .ie-flex-1 {
-        -ms-flex: 1;
-        flex: 1
-    }
+  .ie-flex-1 {
+    -ms-flex: 1;
+    flex: 1
+  }
 
-    .ie-flex-column {
-        -ms-flex-preferred-size: auto;
-        -ms-flex-direction: column;
-        flex-direction: column
-    }
+  .ie-flex-column {
+    -ms-flex-preferred-size: auto;
+    -ms-flex-direction: column;
+    flex-direction: column
+  }
 
-    .d-ie-block {
-        display: block !important
-    }
+  .d-ie-block {
+    display: block !important
+  }
 }
 
 @media all and (max-width:1199px) {
   .sorted-article_tmb .size90 {
-      width: 50px;
-      height: 50px
+    width: 50px;
+    height: 50px
   }
 }
 
 @media all and (max-width:1199px) {
   .sorted-article_tmb .sorted-article-content>p {
-      font-size: .8125rem
+    font-size: .8125rem
   }
 }
 
 @media all and (min-width:1200px) {
   .sorted-article-content h3 {
-      font-size: 1.375rem
+    font-size: 1.375rem
   }
 }
 
 @media all and (min-width:768px) and (max-width:959px) {
   .sorted-article-content h3 {
-      font-size: 1.3rem
+    font-size: 1.3rem
   }
 }
 
@@ -14393,6 +14426,6 @@ canvas {
 
 @media all and (max-width:1199px) {
   .sorted-article-content>p {
-      font-size: .875rem
+    font-size: .875rem
   }
 }
