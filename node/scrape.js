@@ -5,6 +5,8 @@ const fs = require('fs');
     // Launch a headless browser instance
     const browser = await puppeteer.launch({
         executablePath: process.env.CHROME_BIN || null,
+        headless: "new",
+        timeout: 0
     });
 
     // Open a new page
