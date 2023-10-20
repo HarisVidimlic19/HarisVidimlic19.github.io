@@ -5,23 +5,40 @@ on:
     - cron: "1 0 * * *"
 
 jobs:
-  update:
+  set-server:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3, actions/setup-node@v3
-      - name: install-chromium
-        run: |
-          sudo apt-get install chromium-browser
-          export CHROME_BIN=/usr/bin/chromium-browser
-      
-      - name: run-files
+    - name: Install Chromium
+      run: sudo apt-get install chromium-browser
+    - name: Set CHROME_BIN
+      run: export CHROME_BIN=/usr/bin/chromium-browser
+
+  run-files:
+    needs: set-server # This ensures that set-server runs before run-files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3 # This checks out the repository only once
+      - uses: actions/setup-node@v3
         with:
           node-version: "18"
-        run: |
-          node node/scrape.js
-          node node/horizons.js
+      - run: node node/scrape.js
+      - run: node node/horizons.js
+      - name: Upload modified files # This uploads the modified files as an artifact
+        uses: actions/upload-artifact@v2 
+        with:
+          name: modified-files 
+          path: ./data # You can specify the path of the modified files here
 
-      - name: push-job
+  push-job:
+    needs: run-files # This ensures that run-files runs before push-job
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download modified files # This downloads the modified files from the artifact
+        uses: actions/download-artifact@v2 
+        with:
+          name: modified-files 
+          path: ./data # You can specify the path where to download the files here
+      - name: Push changes # This pushes the changes without checking out the repository again
         run: |
           git config --global user.name 'HarisVidimlic19'
           git config --global user.email 'hvidimlic1234@hotmail.com'
