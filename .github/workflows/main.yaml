@@ -39,6 +39,7 @@ jobs:
     needs: run-files # This ensures that run-files runs before push-job
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v3
       - name: Download modified files # This downloads the modified files from the artifact
         uses: actions/download-artifact@v3 
         with:
@@ -47,9 +48,8 @@ jobs:
       - name: Change directory # This changes the working directory to the root of the repository
         run: cd $GITHUB_WORKSPACE 
       - name: Push changes # This pushes the changes without checking out the repository again
-      - uses: actions/checkout@v3
         run: |
-          git config --global user.name 'HarisVidimlic19' github-actions
+          git config --global user.name 'HarisVidimlic19'
           git config --global user.email 'hvidimlic1234@hotmail.com' 
           git add .
           git commit -am "Automated data import"
