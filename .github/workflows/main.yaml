@@ -30,7 +30,7 @@ jobs:
       - run: node node/scrape.js
       - run: node node/horizons.js
       - name: Upload modified files # This uploads the modified files as an artifact
-        uses: actions/upload-artifact@v2 
+        uses: actions/upload-artifact@v3 
         with:
           name: modified-files 
           path: ./data # You can specify the path of the modified files here
@@ -40,18 +40,17 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Download modified files # This downloads the modified files from the artifact
-        uses: actions/download-artifact@v2 
+        uses: actions/download-artifact@v3 
         with:
           name: modified-files 
           path: ./data # You can specify the path where to download the files here
       - name: Change directory # This changes the working directory to the root of the repository
         run: cd $GITHUB_WORKSPACE 
       - name: Push changes # This pushes the changes without checking out the repository again
+      - uses: actions/checkout@v3
         run: |
-          git config --global user.name 'HarisVidimlic19'
-          git config --global user.email 'hvidimlic1234@hotmail.com'
-          git remote set-url origin https://x-access-token:${{ secrets.GITHUB_TOKEN }}@github.com/$GITHUB_REPOSITORY
-          git checkout "${GITHUB_REF:11}"
-          git add -A
+          git config --global user.name 'HarisVidimlic19' github-actions
+          git config --global user.email 'hvidimlic1234@hotmail.com' 
+          git add .
           git commit -am "Automated data import"
-          git push origin main
+          git push
