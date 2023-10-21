@@ -38,6 +38,8 @@ jobs:
         with:
           name: modified-files 
           path: ./data # You can specify the path where to download the files here
+      - name: Change directory # This changes the working directory to the root of the repository
+        run: cd $GITHUB_WORKSPACE 
       - name: Push changes # This pushes the changes without checking out the repository again
         run: |
           git config --global user.name 'HarisVidimlic19'
