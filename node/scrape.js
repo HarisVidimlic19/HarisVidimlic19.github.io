@@ -4,7 +4,7 @@ const fs = require('fs');
 (async () => {
     // Launch a headless browser instance
     const browser = await puppeteer.launch({
-        executablePath: process.env.CHROME_BIN || null,
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
         headless: "new",
         timeout: 0
     });
