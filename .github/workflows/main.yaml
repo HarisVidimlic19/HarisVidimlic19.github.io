@@ -12,12 +12,21 @@ on:
         default: 'Running files!'
 
 jobs:
+  set-server:
+      runs-on: ubuntu-latest
+      steps:
+      - name: Install Chromium
+        run: sudo apt-get install chromium-browser
+      - name: Set CHROME_BIN
+        run: export CHROME_BIN=/usr/bin/chromium-browser
+
   run-files:
+    needs: set-server # This ensures that set-server runs before run-files
     runs-on: ubuntu-latest
-    container: # Use the same Docker container as set-server
-      image: zenika/alpine-chrome
-      env:
-        CHROME_BIN: /usr/bin/chromium-browser
+    # container: # Use the same Docker container as set-server
+    #   image: zenika/alpine-chrome
+    #   env:
+    #     CHROME_BIN: /usr/bin/chromium-browser
     steps:
       - uses: actions/checkout@v3 # This checks out the repository only once
       - uses: actions/setup-node@v3
@@ -52,4 +61,4 @@ jobs:
           git config --global user.email 'hvidimlic1234@hotmail.com' 
           git add .
           git commit -am "Automated data import"
-          git push```
+          git push
