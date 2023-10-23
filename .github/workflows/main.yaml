@@ -16,6 +16,9 @@ jobs:
     container: 
       image: browserless/chrome:latest
       options: --user root
+      env:
+        PUPPETEER_SKIP_CHROMIUM_DOWNLOAD: true
+        PUPPETEER_EXECUTABLE_PATH: /usr/bin/chromium-browser
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
