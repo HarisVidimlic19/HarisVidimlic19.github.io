@@ -11,21 +11,10 @@ on:
         default: 'Running files!'
 
 jobs:
-  set-server:
-      runs-on: ubuntu-latest
-      steps:
-      - name: Install Chromium
-        run: sudo apt-get install chromium-browser
-      - name: Set CHROME_BIN
-        run: export CHROME_BIN=/usr/bin/chromium-browser
-
   run-files:
-    needs: set-server
     runs-on: ubuntu-latest
-    # container: # Use the same Docker container as set-server
-    #   image: zenika/alpine-chrome
-    #   env:
-    #     CHROME_BIN: /usr/bin/chromium-browser
+    container: 
+      image: browserless/chrome:latest
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
