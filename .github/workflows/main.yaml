@@ -13,7 +13,6 @@ on:
 
 jobs:
   run-files:
-    needs: set-server
     runs-on: ubuntu-latest
     container:
       image: armno/node-chromium
