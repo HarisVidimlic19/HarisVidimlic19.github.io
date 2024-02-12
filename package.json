@@ -1,26 +1,61 @@
 {
-  "name": "harisvidimlic19.github.io",
+  "name": "website",
   "version": "1.0.0",
-  "description": "Website housing my portfolio for future employers",
-  "main": "index.html",
+  "description": "A dynamic site to showcase my skills for future employers",
+  "source": "./src/index.html",
+  "type": "module",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "webpack"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/HarisVidimlic19/HarisVidimlic19.github.io.git"
+    "url": "git+https://github.com/HarisVidimlic19/website.git"
   },
   "author": "Haris Vidimlic",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/HarisVidimlic19/HarisVidimlic19.github.io/issues"
+    "url": "https://github.com/HarisVidimlic19/website/issues"
   },
-  "homepage": "https://github.com/HarisVidimlic19/HarisVidimlic19.github.io#readme",
+  "homepage": "https://github.com/HarisVidimlic19/website#readme",
   "dependencies": {
     "fs": "^0.0.1-security",
     "moment-timezone": "^0.5.43",
-    "path": "^0.12.7",
-    "puppeteer": "^21.1.1",
-    "request": "^2.88.2"
+    "node-fetch": "^3.3.2",
+    "puppeteer": "^21.2.1"
+  },
+  "devDependencies": {
+    "@fullhuman/postcss-purgecss": "^5.0.0",
+    "@squoosh/lib": "^0.5.3",
+    "@types/glob": "^8.1.0",
+    "autoprefixer": "^10.4.15",
+    "css-loader": "^6.8.1",
+    "css-minimizer-webpack-plugin": "^5.0.1",
+    "file-loader": "^6.2.0",
+    "fontmin-webpack": "^4.0.0",
+    "html-loader": "^4.2.0",
+    "image-minimizer-webpack-plugin": "^3.8.3",
+    "imagemin": "^8.0.1",
+    "imagemin-gifsicle": "^7.0.0",
+    "imagemin-jpegtran": "^7.0.0",
+    "imagemin-mozjpeg": "^10.0.0",
+    "imagemin-optipng": "^8.0.0",
+    "imagemin-pngquant": "^9.0.2",
+    "imagemin-svgo": "^10.0.1",
+    "jquery-migrate": "^3.4.1",
+    "json-loader": "^0.5.7",
+    "mini-css-extract-plugin": "^2.7.6",
+    "postcss-loader": "^7.3.3",
+    "purgecss-webpack-plugin": "^5.0.0",
+    "raw-loader": "^4.0.2",
+    "sass": "^1.66.1",
+    "sass-loader": "^13.3.2",
+    "sharp": "^0.33.1",
+    "style-loader": "^3.3.3",
+    "svgo": "^3.2.0",
+    "url-loader": "^4.1.1",
+    "webpack": "^5.88.2",
+    "webpack-bundle-analyzer": "^4.10.1",
+    "webpack-cli": "^5.1.4"
   }
 }

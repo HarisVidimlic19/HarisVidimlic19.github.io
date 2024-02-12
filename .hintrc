@@ -3,6 +3,12 @@
     "development"
   ],
   "hints": {
+    "axe/name-role-value": [
+      "default",
+      {
+        "link-name": "off"
+      }
+    ],
     "no-inline-styles": "off",
     "axe/aria": [
       "default",
@@ -10,34 +16,6 @@
         "aria-progressbar-name": "off"
       }
     ],
-    "axe/name-role-value": [
-      "default",
-      {
-        "link-name": "off"
-      }
-    ],
-    "compat-api/css": [
-      "default",
-      {
-        "ignore": [
-          "-ms-grid-row-align",
-          "backdrop-filter",
-          "orphans",
-          "widows",
-          "-webkit-overflow-scrolling",
-          "@page",
-          "-webkit-text-size-adjust",
-          "-webkit-tap-highlight-color",
-          "text-decoration-skip-ink",
-          "@page"
-        ]
-      }
-    ]
-  },
-  "browserslist": [
-    "defaults",
-    "not ie 11",
-    "not ios_saf <= 16.5",
-    "not safari <= 16.5"
-  ]
+    "compat-api/css": "off"
+  }
 }
