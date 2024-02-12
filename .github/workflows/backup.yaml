@@ -27,8 +27,8 @@ jobs:
       - uses: actions/setup-node@v3
         with:
           node-version: "18"
-      - run: node src/node/scrape.js
-      - run: node src/node/horizons.js
+      - run: node docs/node/scrape.js
+      - run: node docs/node/horizons.js
 
       - name: Push changes
         run: |
