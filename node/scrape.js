@@ -1,10 +1,10 @@
-const puppeteer = require('puppeteer');
-const fs = require('fs');
+import { launch } from 'puppeteer';
+import { writeFileSync } from 'fs';
 
 (async () => {
     // Launch a headless browser instance
-    const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    const browser = await launch({
+        executablePath: process.env.CHROME_BIN || null,
         headless: "new",
         timeout: 0
     });
@@ -22,7 +22,8 @@ const fs = require('fs');
     const content = await page.$eval('.sorted-news-list', (div) => div.innerHTML);
 
     // Extract the content of the div container
-    fs.writeFileSync('./data/output.html', content);
+    writeFileSync('src/data/output.html', content);
+    // fs.writeFileSync(__dirname + '\\..\\data\\output.html', content);
 
     console.log('Content extracted and saved to output.html');
 
