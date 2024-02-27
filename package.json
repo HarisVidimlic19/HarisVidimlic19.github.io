@@ -2,7 +2,7 @@
   "name": "website",
   "version": "1.0.0",
   "description": "A dynamic site to showcase my skills for future employers",
-  "source": "./docs/index.html",
+  "source": "./index.html",
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",

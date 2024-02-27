@@ -9,7 +9,7 @@ const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
 
 module.exports = {
-    entry: './docs/js/app.js',
+    entry: './js/app.js',
     mode: 'production',
     output: {
         path: __dirname + "/dist",
@@ -19,7 +19,7 @@ module.exports = {
         new BundleAnalyzerPlugin(),
         new MiniCssExtractPlugin(),
         new PurgeCSSPlugin({
-            paths: glob.sync(`./docs/**/*`, { nodir: true, exclude: [] }),
+            paths: glob.sync(`./**/*`, { nodir: true, exclude: [] }),
         }),
         new FontminPlugin({
             autodetect: true, // automatically subset all fonts in the output directory
