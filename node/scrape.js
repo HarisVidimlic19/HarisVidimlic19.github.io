@@ -4,8 +4,8 @@ import { writeFileSync } from 'fs';
 (async () => {
     // Launch a headless browser instance
     const browser = await launch({
-        executablePath: process.env.CHROME_BIN || null,
-        headless: "new",
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        headless: "true",
         timeout: 0
     });
 
