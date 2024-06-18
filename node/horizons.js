@@ -15,13 +15,13 @@ const planetsData = {};
 const planets = ['mercury', 'venus', 'earth', 'mars', 'jupiter', 'saturn', 'uranus', 'neptune'];
 const planetInput = new Map([
     ['mercury', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
       MAKE_EPHEM=YES
       COMMAND=199
       EPHEM_TYPE=ELEMENTS
       CENTER='500@10'
-      START_TIME='2023-9-17'
-      STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
       REF_SYSTEM='ICRF'
       REF_PLANE='ECLIPTIC'
       CAL_TYPE='M'
@@ -32,13 +32,13 @@ const planetInput = new Map([
       OBJ_DATA='NO'`,
     }],
     ['venus', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
       MAKE_EPHEM=YES
       COMMAND=299
       EPHEM_TYPE=ELEMENTS
       CENTER='500@10'
-      START_TIME='2023-9-17'
-      STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
       REF_SYSTEM='ICRF'
       REF_PLANE='ECLIPTIC'
       CAL_TYPE='M'
@@ -49,13 +49,13 @@ const planetInput = new Map([
       OBJ_DATA='NO'`,
     }],
     ['earth', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
     MAKE_EPHEM=YES
     COMMAND=399
     EPHEM_TYPE=ELEMENTS
     CENTER='500@10'
-    START_TIME='2023-9-17'
-    STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
     REF_SYSTEM='ICRF'
     REF_PLANE='ECLIPTIC'
     CAL_TYPE='M'
@@ -65,13 +65,13 @@ const planetInput = new Map([
     CSV_FORMAT='YES'
     OBJ_DATA='NO'`}],
     ['mars', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
     MAKE_EPHEM=YES
     COMMAND=499
     EPHEM_TYPE=ELEMENTS
     CENTER='500@10'
-    START_TIME='2023-9-17'
-    STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
     REF_SYSTEM='ICRF'
     REF_PLANE='ECLIPTIC'
     CAL_TYPE='M'
@@ -82,13 +82,13 @@ const planetInput = new Map([
     OBJ_DATA='NO'`
     }],
     ['jupiter', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
     MAKE_EPHEM=YES
     COMMAND=599
     EPHEM_TYPE=ELEMENTS
     CENTER='500@10'
-    START_TIME='2023-9-17'
-    STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
     REF_SYSTEM='ICRF'
     REF_PLANE='ECLIPTIC'
     CAL_TYPE='M'
@@ -98,13 +98,13 @@ const planetInput = new Map([
     CSV_FORMAT='YES'
     OBJ_DATA='NO'`}],
     ['saturn', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
     MAKE_EPHEM=YES
     COMMAND=699
     EPHEM_TYPE=ELEMENTS
     CENTER='500@10'
-    START_TIME='2023-9-17'
-    STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
     REF_SYSTEM='ICRF'
     REF_PLANE='ECLIPTIC'
     CAL_TYPE='M'
@@ -114,13 +114,13 @@ const planetInput = new Map([
     CSV_FORMAT='YES'
     OBJ_DATA='NO'`}],
     ['uranus', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
     MAKE_EPHEM=YES
     COMMAND=799
     EPHEM_TYPE=ELEMENTS
     CENTER='500@10'
-    START_TIME='2023-9-17'
-    STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
     REF_SYSTEM='ICRF'
     REF_PLANE='ECLIPTIC'
     CAL_TYPE='M'
@@ -130,13 +130,13 @@ const planetInput = new Map([
     CSV_FORMAT='YES'
     OBJ_DATA='NO'`}],
     ['neptune', {
-        dataString: `!$$SOF
+        dataString: (dt1, dt2) => `!$$SOF
     MAKE_EPHEM=YES
     COMMAND=899
     EPHEM_TYPE=ELEMENTS
     CENTER='500@10'
-    START_TIME='2023-9-17'
-    STOP_TIME='2023-9-18'
+    START_TIME='${dt1}'
+    STOP_TIME='${dt2}'
     REF_SYSTEM='ICRF'
     REF_PLANE='ECLIPTIC'
     CAL_TYPE='M'
@@ -148,17 +148,11 @@ const planetInput = new Map([
 ]);
 
 async function writeData() {
-    // Use for...of loop instead of forEach loop
     for (const planet of planets) {
         // Access the data string from the map
-        const dataString = planetInput.get(planet).dataString;
+        const dataString = planetInput.get(planet).dataString(dt1, dt2);
 
-        // Update start and stop times within the data string
-        dataString.replace(/START_TIME='.*'/, `START_TIME='${dt1}'`);
-        dataString.replace(/STOP_TIME='.*'/, `STOP_TIME='${dt2}'`);
-
-        // Call JPL Horizons API for planet data
-        // Use await keyword before the function call
+        // Call JPL Horizons API for planet data in data string
         const data = await getPlanetData(dataString, dt1);
 
         // Extract relevant information and calculate positions
@@ -172,18 +166,17 @@ async function writeData() {
         };
     };
 
-    writeFileSync('data/planetPositions.json', JSON.stringify(planetsData, null, 2));
+    writeFileSync('src/data/planetPositions.json', JSON.stringify(planetsData, null, 2));
     console.log('Planet data pre-calculated and saved to planetPositions.json');
 }
 
-const getPlanetData = async (planetDataString, date) => {
+const getPlanetData = async (planetDataString) => {
     // Make the POST call to the JPL Horizons API
     const response = await makeRequest(
         'https://ssd.jpl.nasa.gov/api/horizons_file.api',
         {
             format: 'text',
             input: planetDataString,
-            // epoch: date,
         }
     );
     // Parse the API response to extract relevant data
@@ -273,18 +266,7 @@ function getPlanetColor(planet) {
     }
 }
 
-// Define a function that returns a promise for the request
-// function makeRequest(url, form) {
-//     return new Promise((resolve, reject) => {
-//         request.post(url, { form }, (error, response, body) => {
-//             if (error) {
-//                 reject(error);
-//             } else {
-//                 resolve(body);
-//             }
-//         });
-//     });
-// }
+
 // Define a function that returns a promise for the request
 function makeRequest(url, form) {
     return new Promise((resolve, reject) => {

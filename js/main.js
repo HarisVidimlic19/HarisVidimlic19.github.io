@@ -231,7 +231,7 @@ animationHandler();
 // Paper Scraper
 async function fetchScrapedData() {
   try {
-    const response = await fetch('../data/output.html');
+    const response = await fetch('../src/data/output.html');
     const html = await response.text();
     document.getElementById('sidebar').innerHTML = html;
   } catch (error) {
@@ -276,7 +276,7 @@ function drawCelestialBody(planet, data, centerCanvasX, centerCanvasY) {
   const scaleFactor = 16;
   const { A, ec, coordinates, color, scale, W } = data;
   var X = -coordinates[0] * scaleFactor + centerCanvasX;
-  var Y = -coordinates[1] * scaleFactor + centerCanvasY;
+  var Y = coordinates[1] * scaleFactor + centerCanvasY; // Need non-negative Y for counter-clockwise rotation
 
   if (planet == "neptune") {
     return
