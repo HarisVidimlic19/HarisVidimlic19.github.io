@@ -166,7 +166,7 @@ async function writeData() {
         };
     };
 
-    writeFileSync('src/data/planetPositions.json', JSON.stringify(planetsData, null, 2));
+    writeFileSync('data/planetPositions.json', JSON.stringify(planetsData, null, 2));
     console.log('Planet data pre-calculated and saved to planetPositions.json');
 }
 
