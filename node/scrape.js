@@ -5,7 +5,7 @@ import { writeFileSync } from 'fs';
     // Launch a headless browser instance and open new page
     const browser = await launch({
         args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: "true",
+        headless: "false",
         timeout: 0
     });
     const page = await browser.newPage();
@@ -14,10 +14,14 @@ import { writeFileSync } from 'fs';
     await page.goto('https://phys.org/physics-news/sort/popular/1w/');
 
     // Wait for any necessary page content to load
-    await page.waitForSelector('.sorted-news-list.px-3');
+    try {
+        await page.waitForSelector('.sorted-news-list', { timeout: 60000 });
+    } catch (error) {
+        console.error('Selector not found:', error);
+    }
 
     // Extract the content of the div container
-    const content = await page.$eval('.sorted-news-list.px-3', (div) => div.innerHTML);
+    const content = await page.$eval('.sorted-news-list', (div) => div.innerHTML);
 
     // Extract the content of the div container
     writeFileSync('data/output.html', content);
