@@ -19,10 +19,11 @@
   },
   "homepage": "https://github.com/HarisVidimlic19/website#readme",
   "dependencies": {
+    "axios": "^1.7.7",
+    "cheerio": "^1.0.0",
     "fs": "^0.0.1-security",
     "moment-timezone": "^0.5.43",
-    "node-fetch": "^3.3.2",
-    "puppeteer": "^21.2.1"
+    "node-fetch": "^3.3.2"
   },
   "devDependencies": {
     "@fullhuman/postcss-purgecss": "^5.0.0",

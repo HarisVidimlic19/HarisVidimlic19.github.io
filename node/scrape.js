@@ -1,33 +1,23 @@
-import { launch } from 'puppeteer';
+import axios from 'axios';
+import { load } from 'cheerio';
 import { writeFileSync } from 'fs';
 
-(async () => {
-    // Launch a headless browser instance and open new page
-    const browser = await launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        headless: "false",
-        timeout: 0
-    });
-    const page = await browser.newPage();
-
-    // Navigate to the URL to scrape
-    await page.goto('https://phys.org/physics-news/sort/popular/1w/');
-
-    // Wait for any necessary page content to load
+async function fetchSortedNews() {
     try {
-        await page.waitForSelector('.sorted-news-list', { timeout: 60000 });
+        const { data } = await axios.get('https://phys.org/physics-news/sort/popular/1w/');
+        
+        // Load the HTML into Cheerio and grab specific class
+        const $ = load(data);
+        const sortedNewsHTML = $('.sorted-news-list').html();
+
+        // Extract the content of the div container
+        writeFileSync('data/outputTest.html', sortedNewsHTML);
+
+        console.log('Content extracted and saved to output.html');
+
     } catch (error) {
-        console.error('Selector not found:', error);
+        console.error('Error fetching news:', error);
     }
+}
 
-    // Extract the content of the div container
-    const content = await page.$eval('.sorted-news-list', (div) => div.innerHTML);
-
-    // Extract the content of the div container
-    writeFileSync('data/output.html', content);
-    // fs.writeFileSync(__dirname + '\\..\\data\\output.html', content);
-
-    console.log('Content extracted and saved to output.html');
-
-    await browser.close();
-})();
+fetchSortedNews();
