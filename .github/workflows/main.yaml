@@ -19,7 +19,6 @@ jobs:
         with:
           node-version: "latest"
       - run: npm ci
-      - run: node node/scrape.js
       - run: node node/horizons.js
 
       - name: Push changes

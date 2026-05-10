@@ -228,18 +228,6 @@ function animationHandler() {
 }
 animationHandler();
 
-// Paper Scraper
-async function fetchScrapedData() {
-  try {
-    const response = await fetch('../data/output.html');
-    const html = await response.text();
-    document.getElementById('sidebar').innerHTML = html;
-  } catch (error) {
-    console.error(error);
-  }
-}
-fetchScrapedData();
-
 
 // Find the SVG element/container to draw on
 const svg = document.getElementById('solarSystemSVG');
