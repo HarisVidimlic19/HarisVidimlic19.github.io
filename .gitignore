@@ -2,3 +2,7 @@
 node_modules/*
 # ...except for the axios directory
 !node_modules/axios/
+!node_modules/cheerio/
+!node_modules/fs/
+!node_modules/moment-timezone/
+!node_modules/node-fethch/
