@@ -4,14 +4,14 @@ import { writeFileSync } from 'fs';
 
 async function fetchSortedNews() {
     try {
-        const { data } = await axios.get('https://phys.org/physics-news/sort/popular/1w/');
+        const { data } = await axios.get('https://phys.org/sort/rank/1w/');
         
         // Load the HTML into Cheerio and grab specific class
         const $ = load(data);
         const sortedNewsHTML = $('.sorted-news-list').html();
 
         // Extract the content of the div container
-        writeFileSync('data/outputTest.html', sortedNewsHTML);
+        writeFileSync('data/output.html', sortedNewsHTML);
 
         console.log('Content extracted and saved to output.html');
 
