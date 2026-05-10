@@ -1,1 +1,4 @@
-/node_modules
+# Ignore all contents of node_modules...
+node_modules/*
+# ...except for the axios directory
+!node_modules/axios/
