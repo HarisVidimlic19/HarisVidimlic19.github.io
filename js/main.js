@@ -2,7 +2,18 @@
 const fullHeightEls = document.querySelectorAll('.js-fullheight');
 function setFullHeight() {
   const windowHeight = window.innerHeight;
-  fullHeightEls.forEach(el => el.style.height = `${windowHeight}px`);
+  const isSmallViewport = window.matchMedia('(max-width: 991.98px)').matches;
+
+  fullHeightEls.forEach(el => {
+    if (isSmallViewport) {
+      el.style.height = 'auto';
+      el.style.minHeight = `${Math.max(420, windowHeight * 0.68)}px`;
+      return;
+    }
+
+    el.style.minHeight = '';
+    el.style.height = `${windowHeight}px`;
+  });
 }
 window.addEventListener('resize', setFullHeight);
 setFullHeight(); // Set initial height
@@ -20,43 +31,8 @@ var burgerMenu = function () {
 };
 burgerMenu();
 
-// var highlightMenu = function () {
-//   // Select the NavLink items and the section elements
-//   const sections = document.querySelectorAll('section.nav-section');
-//   const navLinks = document.querySelectorAll('.nav-link');
-
-//   const observer = new IntersectionObserver((entries) => {
-//     // Loop through the entries
-//     entries.forEach(entry => {
-//       // Get the target element of the entry
-//       const target = entry.target;
-//       // Get the id of the target element
-//       const targetId = target.getAttribute('id');
-
-//       // Find the NavLink item that has the same href value as the target id
-//       const navLink = document.querySelector(`.nav-link[href="#${targetId}"]`);
-
-//       // Check if the entry is intersecting
-//       // if (entry.intersectionRatio > 0.2) {
-//         // Remove the active class from all the NavLink items
-//         navLinks.forEach(navLink => navLink.classList.remove('active'));
-//         // Add the active class to the NavLink item
-//         navLink.classList.add('active');
-//       // } else {
-//         // Remove the active class from the NavLink item
-//         // navLink.classList.remove('active');
-//       // }
-//     },{rootMargin: '0px 0px -80% 0px'}
-//   )});
-
-
-//   // Loop through the section elements
-//   sections.forEach(section => {
-//     // Observe the section element with the observer
-//     observer.observe(section);
-//   });
-// }
-// highlightMenu();
+// Previous section-observer highlight logic was removed for maintainability.
+// Navigation remains anchor-based with smooth scrolling.
 
 // One Page Scroll Navigation
 var onePageClick = function () {
@@ -139,19 +115,6 @@ new Glider(document.querySelector(".glider"), {
 // });
 
 //////////////////////////////////////////////////////////////////////
-// // Dropdown
-// const navDropdowns = document.querySelectorAll('nav .dropdown');
-
-// navDropdowns.forEach(dropdown => {
-//   dropdown.addEventListener('mouseenter', () => {
-//     dropdown.classList.add('show');
-//     dropdown.querySelector('> a').setAttribute('aria-expanded', true);
-//   });
-//   dropdown.addEventListener('mouseleave', () => {
-//     dropdown.classList.remove('show');
-//     dropdown.querySelector('> a').setAttribute('aria-expanded', false);
-//   });
-// });
 /////////////////////////////////////////////////////////////////////
 
 
@@ -191,42 +154,39 @@ function numberWithCommas(number) {
   return number.toLocaleString('en-US', { minimumFractionDigits: 0 });
 }
 
-function animationHandler() {
-  // Create a single observer for animating elements
-  let animateObserver = new IntersectionObserver((entries, observer) => {
-    // Loop through the entries
+function setupNumberAnimation() {
+  const nums = document.querySelectorAll('.number');
+
+  if (!nums.length) {
+    return;
+  }
+
+  const numberObserver = new IntersectionObserver((entries, observer) => {
     entries.forEach(entry => {
-      // If the element is visible
-      if (entry.isIntersecting && !entry.target.classList.contains('ftco-animated')) {
-
-        // If the element is a number, call the animateNumber function
-        if (entry.target.classList.contains('number')) {
-          animateNumber(entry.target, entry.target.dataset.number, 20000);
-        } else {
-          // Add the fadeIn and ftco-animated classes
-          entry.target.classList.add('fadeIn', 'ftco-animated');
-        }
-        // Stop observing the element
-        observer.unobserve(entry.target);
+      if (!entry.isIntersecting) {
+        return;
       }
+
+      const target = entry.target;
+      if (target.dataset.animated === 'true') {
+        observer.unobserve(target);
+        return;
+      }
+
+      target.dataset.animated = 'true';
+      animateNumber(target, Number(target.dataset.number || 0), 2200);
+      observer.unobserve(target);
     });
-  }, { threshold: 0.2 }); // MAYBE CHANGE THIS NUMBER
-
-  // Get all the elements with the class ftco-animate or number
-  let animElements = document.querySelectorAll('.ftco-animate');
-  let nums = document.querySelectorAll('.number');
-
-  // Loop through the elements and observe them
-  animElements.forEach(element => {
-    animateObserver.observe(element);
+  }, {
+    threshold: 0,
+    rootMargin: '0px 0px -15% 0px'
   });
 
   nums.forEach(num => {
-    animateObserver.observe(num);
+    numberObserver.observe(num);
   });
-
 }
-animationHandler();
+setupNumberAnimation();
 
 
 // Find the SVG element/container to draw on
