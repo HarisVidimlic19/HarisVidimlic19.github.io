@@ -191,8 +191,41 @@ setupNumberAnimation();
 
 // Find the SVG element/container to draw on
 const svg = document.getElementById('solarSystemSVG');
+const modeToggleBtn = document.getElementById('solarModeToggle');
 const svgNS = 'http://www.w3.org/2000/svg';
-const orbitScaleFactor = 16;
+const renderModes = {
+  aesthetic: {
+    label: 'Aesthetic',
+    orbitScale: 18,
+    planetSizeBoost: 1.42,
+    minPlanetRadius: 2.8,
+    maxPlanetRadius: 16,
+    orbitOpacity: 0.62,
+    traceOpacity: 0.58,
+    showHalos: true,
+    starDensity: 1,
+    sunCoreRadius: 7.5,
+    sunHaloRadius: 24
+  },
+  scientific: {
+    label: 'Scientific',
+    orbitScale: 23,
+    planetSizeBoost: 0.36,
+    minPlanetRadius: 0.8,
+    maxPlanetRadius: 3.2,
+    orbitOpacity: 0.38,
+    traceOpacity: 0.24,
+    showHalos: false,
+    starDensity: 0.45,
+    sunCoreRadius: 4.4,
+    sunHaloRadius: 10
+  }
+};
+let activeRenderMode = localStorage.getItem('solarRenderMode') === 'scientific' ? 'scientific' : 'aesthetic';
+let solarDataCache;
+let solarRenderedOnce = false;
+let solarRenderPending = true;
+let solarIsVisible = false;
 
 function getSvgMetrics() {
   const bounds = svg.getBoundingClientRect();
@@ -226,7 +259,7 @@ function createStarfield(starGroup, width, height, starsCount) {
   }
 }
 
-function buildOrbitPath(data, centerX, centerY) {
+function buildOrbitPath(data, centerX, centerY, orbitScaleFactor) {
   const has3dElements = Number.isFinite(data.IN) && Number.isFinite(data.OM);
 
   if (!has3dElements) {
@@ -254,33 +287,148 @@ function buildOrbitPath(data, centerX, centerY) {
   return `${path}Z`;
 }
 
-function createPlanetRadius(scale) {
-  return Math.max(2.2, Math.min(13, Math.pow(scale, 0.55) * 2.65));
+function createPlanetRadius(scale, modeConfig) {
+  const baseRadius = Math.pow(scale, 0.55) * 2.65 * modeConfig.planetSizeBoost;
+  return Math.max(modeConfig.minPlanetRadius, Math.min(modeConfig.maxPlanetRadius, baseRadius));
 }
 
-function drawCelestialBody(planet, data, layers, centerX, centerY) {
+function intersectsAny(rect, rectangles) {
+  return rectangles.some(item => {
+    const separated = rect.x + rect.w < item.x || item.x + item.w < rect.x || rect.y + rect.h < item.y || item.y + item.h < rect.y;
+    return !separated;
+  });
+}
+
+function collidesWithPlanets(rect, planets) {
+  return planets.some(item => {
+    const nearestX = Math.max(rect.x, Math.min(item.x, rect.x + rect.w));
+    const nearestY = Math.max(rect.y, Math.min(item.y, rect.y + rect.h));
+    const dx = item.x - nearestX;
+    const dy = item.y - nearestY;
+    return (dx * dx + dy * dy) <= (item.r + 4) * (item.r + 4);
+  });
+}
+
+function createLabelRect(labelX, labelY, labelText) {
+  const paddingX = 6;
+  const estimatedWidth = labelText.length * 7.1;
+  const height = 14;
+  return {
+    x: labelX - paddingX,
+    y: labelY - height + 3,
+    w: estimatedWidth + paddingX * 2,
+    h: height
+  };
+}
+
+function rectInBounds(rect, width, height, margin) {
+  return rect.x >= margin && rect.y >= margin && rect.x + rect.w <= width - margin && rect.y + rect.h <= height - margin;
+}
+
+function placePlanetLabels(labels, labelLayer, centerX, centerY, width, height) {
+  const occupiedRects = [];
+  const planetCollisionTargets = labels.map(item => ({ x: item.x, y: item.y, r: item.radius }));
+  const angleOffsets = [0, 20, -20, 40, -40, 65, -65, 95, -95, 130, -130, 160, -160, 180];
+  const ringSteps = [1, 1.45, 1.9, 2.4, 3, 3.7];
+  const boundaryMargin = 8;
+
+  labels
+    .sort((a, b) => a.distance - b.distance)
+    .forEach(item => {
+      let chosen = null;
+      const baseAngle = Math.atan2(item.y - centerY, item.x - centerX);
+
+      for (const ringStep of ringSteps) {
+        for (const offset of angleOffsets) {
+          const angle = baseAngle + (offset * Math.PI / 180);
+          const radialDistance = item.radius + 12 + (ringStep * 10) + Math.min(26, item.distance * 0.028);
+          const labelX = item.x + Math.cos(angle) * radialDistance;
+          const labelY = item.y + Math.sin(angle) * radialDistance;
+          const rect = createLabelRect(labelX, labelY, item.label);
+
+          if (!rectInBounds(rect, width, height, boundaryMargin)) {
+            continue;
+          }
+
+          if (intersectsAny(rect, occupiedRects) || collidesWithPlanets(rect, planetCollisionTargets)) {
+            continue;
+          }
+
+          chosen = { labelX, labelY, rect };
+          break;
+        }
+
+        if (chosen) {
+          break;
+        }
+      }
+
+      if (!chosen) {
+        const fallbackAngle = baseAngle - Math.PI / 2;
+        const labelX = item.x + Math.cos(fallbackAngle) * (item.radius + 36);
+        const labelY = item.y + Math.sin(fallbackAngle) * (item.radius + 36);
+        chosen = {
+          labelX,
+          labelY,
+          rect: createLabelRect(labelX, labelY, item.label)
+        };
+      }
+
+      occupiedRects.push(chosen.rect);
+
+      const connector = document.createElementNS(svgNS, 'line');
+      connector.setAttribute('x1', item.x);
+      connector.setAttribute('y1', item.y);
+      connector.setAttribute('x2', chosen.labelX - 3);
+      connector.setAttribute('y2', chosen.labelY - 3);
+      connector.setAttribute('class', `planet-label-link ${item.className}`);
+      labelLayer.appendChild(connector);
+
+      const labelNode = document.createElementNS(svgNS, 'text');
+      labelNode.setAttribute('x', chosen.labelX);
+      labelNode.setAttribute('y', chosen.labelY);
+      labelNode.setAttribute('class', `planet-label ${item.className}`);
+      labelNode.textContent = item.label;
+      labelLayer.appendChild(labelNode);
+    });
+}
+
+function drawCelestialBody(planet, data, layers, centerX, centerY, modeConfig) {
+  const orbitScaleFactor = modeConfig.orbitScale;
   const x = -data.coordinates[0] * orbitScaleFactor + centerX;
   const y = data.coordinates[1] * orbitScaleFactor + centerY;
   const className = (planet === 'uranus' || planet === 'neptune') ? 'hide' : 'show';
+  const planetRadius = createPlanetRadius(data.scale, modeConfig);
 
   const orbitPath = document.createElementNS(svgNS, 'path');
-  orbitPath.setAttribute('d', buildOrbitPath(data, centerX, centerY));
+  orbitPath.setAttribute('d', buildOrbitPath(data, centerX, centerY, orbitScaleFactor));
   orbitPath.setAttribute('class', `orbit-track ${className}`);
+  orbitPath.style.opacity = modeConfig.orbitOpacity;
   orbitPath.style.stroke = data.color;
   layers.orbitLayer.appendChild(orbitPath);
+
+  const orbitTrace = document.createElementNS(svgNS, 'path');
+  orbitTrace.setAttribute('d', orbitPath.getAttribute('d'));
+  orbitTrace.setAttribute('class', `orbit-trace ${className}`);
+  orbitTrace.style.stroke = data.color;
+  orbitTrace.style.opacity = modeConfig.traceOpacity;
+  orbitTrace.style.setProperty('--orbit-speed', `${Math.max(16, Math.min(54, Math.round(18 + data.A * 2.7)))}s`);
+  layers.orbitLayer.appendChild(orbitTrace);
 
   const halo = document.createElementNS(svgNS, 'circle');
   halo.setAttribute('cx', x);
   halo.setAttribute('cy', y);
-  halo.setAttribute('r', createPlanetRadius(data.scale) + 2);
+  halo.setAttribute('r', planetRadius + 2);
   halo.setAttribute('class', `planet-halo ${className}`);
   halo.style.stroke = data.color;
-  // layers.bodyLayer.appendChild(halo);
+  if (modeConfig.showHalos) {
+    layers.bodyLayer.appendChild(halo);
+  }
 
   const body = document.createElementNS(svgNS, 'circle');
   body.setAttribute('cx', x);
   body.setAttribute('cy', y);
-  body.setAttribute('r', createPlanetRadius(data.scale));
+  body.setAttribute('r', planetRadius);
   body.setAttribute('class', `planet-body ${className}`);
   body.setAttribute('fill', data.color);
 
@@ -288,6 +436,35 @@ function drawCelestialBody(planet, data, layers, centerX, centerY) {
   title.textContent = planet.charAt(0).toUpperCase() + planet.slice(1);
   body.appendChild(title);
   layers.bodyLayer.appendChild(body);
+
+  return {
+    className,
+    x,
+    y,
+    radius: planetRadius,
+    label: planet.charAt(0).toUpperCase() + planet.slice(1),
+    distance: Math.hypot(x - centerX, y - centerY)
+  };
+}
+
+function loadSolarData() {
+  if (solarDataCache) {
+    return Promise.resolve(solarDataCache);
+  }
+
+  return fetch('./data/planetPositions.json')
+    .then(response => response.json())
+    .then(planetsData => {
+      solarDataCache = planetsData;
+      return planetsData;
+    });
+}
+
+function updateModeToggleButton() {
+  if (!modeToggleBtn) {
+    return;
+  }
+  modeToggleBtn.textContent = `Mode: ${renderModes[activeRenderMode].label}`;
 }
 
 // Draw 2D Realtime Solar System for today
@@ -296,43 +473,76 @@ function drawSolarSystem() {
     return;
   }
 
+  const modeConfig = renderModes[activeRenderMode];
+  svg.classList.toggle('mode-aesthetic', activeRenderMode === 'aesthetic');
+  svg.classList.toggle('mode-scientific', activeRenderMode === 'scientific');
+
   const { width, height, centerX, centerY } = getSvgMetrics();
   svg.replaceChildren();
 
   const starLayer = document.createElementNS(svgNS, 'g');
   const orbitLayer = document.createElementNS(svgNS, 'g');
   const bodyLayer = document.createElementNS(svgNS, 'g');
+  const labelLayer = document.createElementNS(svgNS, 'g');
 
-  createStarfield(starLayer, width, height, Math.max(40, Math.round((width * height) / 9000)));
+  createStarfield(starLayer, width, height, Math.max(22, Math.round((width * height) / 9000) * modeConfig.starDensity));
 
   const centerGlow = document.createElementNS(svgNS, 'circle');
   centerGlow.setAttribute('cx', centerX);
   centerGlow.setAttribute('cy', centerY);
-  centerGlow.setAttribute('r', 24);
+  centerGlow.setAttribute('r', modeConfig.sunHaloRadius);
   centerGlow.setAttribute('class', 'sun-halo');
   bodyLayer.appendChild(centerGlow);
 
   const sun = document.createElementNS(svgNS, 'circle');
   sun.setAttribute('cx', centerX);
   sun.setAttribute('cy', centerY);
-  sun.setAttribute('r', 7.5);
+  sun.setAttribute('r', modeConfig.sunCoreRadius);
   sun.setAttribute('class', 'sun-core');
   bodyLayer.appendChild(sun);
 
   svg.appendChild(starLayer);
   svg.appendChild(orbitLayer);
   svg.appendChild(bodyLayer);
+  svg.appendChild(labelLayer);
 
-  fetch('./data/planetPositions.json')
-    .then(response => response.json())
+  loadSolarData()
     .then(planetsData => {
+      const labels = [];
+
       Object.entries(planetsData).forEach(([planet, data]) => {
-        drawCelestialBody(planet, data, { orbitLayer, bodyLayer }, centerX, centerY);
+        const placement = drawCelestialBody(planet, data, { orbitLayer, bodyLayer }, centerX, centerY, modeConfig);
+        labels.push(placement);
       });
+
+      placePlanetLabels(labels, labelLayer, centerX, centerY, width, height);
+      solarRenderedOnce = true;
+      solarRenderPending = false;
     })
     .catch(error => {
       console.error('Could not load planet positions:', error);
     });
+}
+
+if (modeToggleBtn) {
+  updateModeToggleButton();
+  modeToggleBtn.addEventListener('click', () => {
+    activeRenderMode = activeRenderMode === 'aesthetic' ? 'scientific' : 'aesthetic';
+    localStorage.setItem('solarRenderMode', activeRenderMode);
+    updateModeToggleButton();
+    solarRenderPending = true;
+    if (solarIsVisible) {
+      drawSolarSystem();
+    }
+  });
+}
+
+function requestSolarDraw() {
+  solarRenderPending = true;
+  if (!solarIsVisible) {
+    return;
+  }
+  drawSolarSystem();
 }
 
 let solarResizeFrameId;
@@ -341,9 +551,37 @@ window.addEventListener('resize', () => {
     cancelAnimationFrame(solarResizeFrameId);
   }
   solarResizeFrameId = requestAnimationFrame(() => {
-    drawSolarSystem();
+    requestSolarDraw();
   });
 });
 
-// Initial drawing
-drawSolarSystem();
+if (svg && 'IntersectionObserver' in window) {
+  svg.classList.add('is-idle');
+  const solarObserver = new IntersectionObserver(entries => {
+    entries.forEach(entry => {
+      if (entry.target !== svg) {
+        return;
+      }
+
+      if (entry.isIntersecting) {
+        solarIsVisible = true;
+        svg.classList.remove('is-idle');
+        if (!solarRenderedOnce || solarRenderPending) {
+          drawSolarSystem();
+        }
+        return;
+      }
+
+      solarIsVisible = false;
+      svg.classList.add('is-idle');
+    });
+  }, {
+    threshold: 0.12,
+    rootMargin: '120px 0px'
+  });
+
+  solarObserver.observe(svg);
+} else {
+  solarIsVisible = true;
+  drawSolarSystem();
+}

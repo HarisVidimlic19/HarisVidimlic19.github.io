@@ -13697,6 +13697,15 @@ textarea.form-control {
 }
 
 .contact-section .box .icon {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-align: center;
+  -ms-flex-align: center;
+  align-items: center;
+  -webkit-box-pack: center;
+  -ms-flex-pack: center;
+  justify-content: center;
   width: 100px;
   height: 100px;
   background: rgba(255, 255, 255, 0.1);
@@ -13709,6 +13718,8 @@ textarea.form-control {
 }
 
 .contact-section .box .icon span {
+  display: block;
+  line-height: 1;
   color: var(--main-color);
   font-size: 30px;
 }
@@ -14173,6 +14184,7 @@ article, aside, figcaption, figure, footer, header, hgroup, main, nav, section {
 
 .parent {
   display: flex;
+  position: relative;
   justify-content: center;
   align-items: center;
   width: 100%;
@@ -14199,6 +14211,35 @@ svg#solarSystemSVG {
     radial-gradient(circle at 80% 75%, rgba(88, 143, 255, 0.12), transparent 40%);
 }
 
+.solar-controls {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  z-index: 3;
+}
+
+.solar-mode-btn {
+  border: 1px solid rgba(183, 212, 255, 0.5);
+  border-radius: 999px;
+  color: #d9e9ff;
+  background: rgba(10, 17, 36, 0.72);
+  font-size: 12px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-weight: 600;
+  padding: 8px 14px;
+  transition: all 0.2s ease;
+  backdrop-filter: blur(5px);
+}
+
+.solar-mode-btn:hover,
+.solar-mode-btn:focus {
+  outline: none;
+  color: #ffffff;
+  border-color: rgba(228, 240, 255, 0.82);
+  background: rgba(25, 40, 78, 0.82);
+}
+
 /* Styles for inner orbits (visible by default) */
 .show {
   display: block;
@@ -14218,6 +14259,20 @@ svg#solarSystemSVG .orbit-track {
   opacity: 0.58;
 }
 
+svg#solarSystemSVG .orbit-trace {
+  fill: none;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-dasharray: 20 220;
+  opacity: 0.52;
+  animation: orbit-trace-drift var(--orbit-speed, 30s) linear infinite;
+  filter: drop-shadow(0 0 4px rgba(190, 218, 255, 0.22));
+}
+
+svg#solarSystemSVG.is-idle .orbit-trace {
+  animation-play-state: paused;
+}
+
 svg#solarSystemSVG .planet-halo {
   fill: none;
   stroke-width: 1;
@@ -14228,6 +14283,40 @@ svg#solarSystemSVG .planet-body {
   stroke: rgba(255, 255, 255, 0.5);
   stroke-width: 0.8;
   filter: drop-shadow(0 0 8px rgba(255, 255, 255, 0.24));
+}
+
+svg#solarSystemSVG .planet-label {
+  fill: rgba(226, 236, 255, 0.92);
+  font-size: 11px;
+  letter-spacing: 0.03em;
+  font-weight: 500;
+  paint-order: stroke;
+  stroke: rgba(5, 10, 20, 0.95);
+  stroke-width: 2.4;
+  pointer-events: none;
+}
+
+svg#solarSystemSVG .planet-label-link {
+  stroke: rgba(220, 234, 255, 0.52);
+  stroke-width: 0.9;
+  stroke-dasharray: 2 4;
+  fill: none;
+  pointer-events: none;
+}
+
+svg#solarSystemSVG.mode-scientific .planet-label {
+  font-size: 9.5px;
+  opacity: 0.76;
+}
+
+svg#solarSystemSVG.mode-scientific .planet-body {
+  stroke-width: 0.5;
+  filter: none;
+}
+
+svg#solarSystemSVG.mode-aesthetic .planet-label {
+  font-size: 11px;
+  opacity: 0.95;
 }
 
 svg#solarSystemSVG .sun-halo {
@@ -14242,10 +14331,21 @@ svg#solarSystemSVG .sun-core {
   filter: drop-shadow(0 0 16px rgba(255, 189, 71, 0.85));
 }
 
+@keyframes orbit-trace-drift {
+  to {
+    stroke-dashoffset: -240;
+  }
+}
+
 @media screen and (max-width: 991.98px) {
   .parent {
     height: 68vh;
     min-height: 420px;
+  }
+
+  .solar-controls {
+    top: 12px;
+    right: 12px;
   }
 }
 

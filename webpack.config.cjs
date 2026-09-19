@@ -7,6 +7,8 @@ const BundleAnalyzerPlugin = require('webpack-bundle-analyzer').BundleAnalyzerPl
 const FontminPlugin = require('fontmin-webpack');
 const ImageMinimizerPlugin = require("image-minimizer-webpack-plugin");
 
+const enableAnalyzer = process.env.npm_lifecycle_event === 'build:analyze';
+
 
 module.exports = {
     entry: './js/app.js',
@@ -16,7 +18,7 @@ module.exports = {
         filename: '[name].bundle.js',
     },
     plugins: [
-        new BundleAnalyzerPlugin(),
+        ...(enableAnalyzer ? [new BundleAnalyzerPlugin()] : []),
         new MiniCssExtractPlugin(),
         new PurgeCSSPlugin({
             paths: glob.sync(`./**/*`, { nodir: true, exclude: [] }),
