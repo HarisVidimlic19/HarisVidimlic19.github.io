@@ -191,93 +191,159 @@ setupNumberAnimation();
 
 // Find the SVG element/container to draw on
 const svg = document.getElementById('solarSystemSVG');
+const svgNS = 'http://www.w3.org/2000/svg';
+const orbitScaleFactor = 16;
+
+function getSvgMetrics() {
+  const bounds = svg.getBoundingClientRect();
+  const width = Math.max(1, bounds.width);
+  const height = Math.max(1, bounds.height);
+  svg.setAttribute('viewBox', `0 0 ${width} ${height}`);
+  return {
+    width,
+    height,
+    centerX: width / 2,
+    centerY: height / 2
+  };
+}
+
+function orbitalPoint(r, trueAnomaly, inclination, ascendingNode, argumentOfPeriapsis) {
+  const argument = trueAnomaly + argumentOfPeriapsis;
+  const x = r * (Math.cos(argument) * Math.cos(ascendingNode) - Math.sin(argument) * Math.cos(inclination) * Math.sin(ascendingNode));
+  const y = r * (Math.cos(argument) * Math.sin(ascendingNode) + Math.sin(argument) * Math.cos(inclination) * Math.cos(ascendingNode));
+  return { x, y };
+}
+
+function createStarfield(starGroup, width, height, starsCount) {
+  for (let i = 0; i < starsCount; i += 1) {
+    const star = document.createElementNS(svgNS, 'circle');
+    star.setAttribute('cx', (Math.random() * width).toFixed(2));
+    star.setAttribute('cy', (Math.random() * height).toFixed(2));
+    star.setAttribute('r', (Math.random() * 1.15 + 0.25).toFixed(2));
+    star.setAttribute('class', 'solar-star');
+    star.style.opacity = (Math.random() * 0.6 + 0.15).toFixed(2);
+    starGroup.appendChild(star);
+  }
+}
+
+function buildOrbitPath(data, centerX, centerY) {
+  const has3dElements = Number.isFinite(data.IN) && Number.isFinite(data.OM);
+
+  if (!has3dElements) {
+    const semimajorAxis = data.A * orbitScaleFactor;
+    const semiminorAxis = Math.sqrt(semimajorAxis * semimajorAxis * (1 - data.ec * data.ec));
+    const focusOffset = data.A * data.ec * orbitScaleFactor;
+    const orientation = Number.isFinite(data.W) ? data.W : 0;
+    const ellipseCenterX = centerX + focusOffset * Math.cos(orientation);
+    const ellipseCenterY = centerY - focusOffset * Math.sin(orientation);
+    return `M ${ellipseCenterX + semimajorAxis} ${ellipseCenterY} a ${semimajorAxis} ${semiminorAxis} 0 1 0 ${-2 * semimajorAxis} 0 a ${semimajorAxis} ${semiminorAxis} 0 1 0 ${2 * semimajorAxis} 0`;
+  }
+
+  const segments = 240;
+  let path = '';
+
+  for (let i = 0; i <= segments; i += 1) {
+    const trueAnomaly = (i / segments) * Math.PI * 2;
+    const r = data.A * (1 - data.ec * data.ec) / (1 + data.ec * Math.cos(trueAnomaly));
+    const point = orbitalPoint(r, trueAnomaly, data.IN, data.OM, data.W);
+    const x = centerX - point.x * orbitScaleFactor;
+    const y = centerY + point.y * orbitScaleFactor;
+    path += `${i === 0 ? 'M' : 'L'} ${x.toFixed(2)} ${y.toFixed(2)} `;
+  }
+
+  return `${path}Z`;
+}
+
+function createPlanetRadius(scale) {
+  return Math.max(2.2, Math.min(13, Math.pow(scale, 0.55) * 2.65));
+}
+
+function drawCelestialBody(planet, data, layers, centerX, centerY) {
+  const x = -data.coordinates[0] * orbitScaleFactor + centerX;
+  const y = data.coordinates[1] * orbitScaleFactor + centerY;
+  const className = (planet === 'uranus' || planet === 'neptune') ? 'hide' : 'show';
+
+  const orbitPath = document.createElementNS(svgNS, 'path');
+  orbitPath.setAttribute('d', buildOrbitPath(data, centerX, centerY));
+  orbitPath.setAttribute('class', `orbit-track ${className}`);
+  orbitPath.style.stroke = data.color;
+  layers.orbitLayer.appendChild(orbitPath);
+
+  const halo = document.createElementNS(svgNS, 'circle');
+  halo.setAttribute('cx', x);
+  halo.setAttribute('cy', y);
+  halo.setAttribute('r', createPlanetRadius(data.scale) + 2);
+  halo.setAttribute('class', `planet-halo ${className}`);
+  halo.style.stroke = data.color;
+  // layers.bodyLayer.appendChild(halo);
+
+  const body = document.createElementNS(svgNS, 'circle');
+  body.setAttribute('cx', x);
+  body.setAttribute('cy', y);
+  body.setAttribute('r', createPlanetRadius(data.scale));
+  body.setAttribute('class', `planet-body ${className}`);
+  body.setAttribute('fill', data.color);
+
+  const title = document.createElementNS(svgNS, 'title');
+  title.textContent = planet.charAt(0).toUpperCase() + planet.slice(1);
+  body.appendChild(title);
+  layers.bodyLayer.appendChild(body);
+}
+
 // Draw 2D Realtime Solar System for today
 function drawSolarSystem() {
+  if (!svg) {
+    return;
+  }
 
-  // Find center and create a scale factor
-  const centerCanvasX = svg.width.baseVal.value / 2;
-  const centerCanvasY = svg.height.baseVal.value / 2;
+  const { width, height, centerX, centerY } = getSvgMetrics();
+  svg.replaceChildren();
 
-  // Draw Sun first
-  var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  circle.setAttribute("cx", centerCanvasX);
-  circle.setAttribute("cy", centerCanvasY);
-  circle.setAttribute("r", 5);
-  circle.setAttribute("fill", "yellow");
-  svg.appendChild(circle);
+  const starLayer = document.createElementNS(svgNS, 'g');
+  const orbitLayer = document.createElementNS(svgNS, 'g');
+  const bodyLayer = document.createElementNS(svgNS, 'g');
+
+  createStarfield(starLayer, width, height, Math.max(40, Math.round((width * height) / 9000)));
+
+  const centerGlow = document.createElementNS(svgNS, 'circle');
+  centerGlow.setAttribute('cx', centerX);
+  centerGlow.setAttribute('cy', centerY);
+  centerGlow.setAttribute('r', 24);
+  centerGlow.setAttribute('class', 'sun-halo');
+  bodyLayer.appendChild(centerGlow);
+
+  const sun = document.createElementNS(svgNS, 'circle');
+  sun.setAttribute('cx', centerX);
+  sun.setAttribute('cy', centerY);
+  sun.setAttribute('r', 7.5);
+  sun.setAttribute('class', 'sun-core');
+  bodyLayer.appendChild(sun);
+
+  svg.appendChild(starLayer);
+  svg.appendChild(orbitLayer);
+  svg.appendChild(bodyLayer);
 
   fetch('./data/planetPositions.json')
     .then(response => response.json())
     .then(planetsData => {
-      // Use Object.entries to get an array of key-value pairs
-      const entries = Object.entries(planetsData);
-
-      // Use forEach to iterate over the array
-      entries.forEach(([planet, data]) => {
-        drawCelestialBody(planet, data, centerCanvasX, centerCanvasY)
+      Object.entries(planetsData).forEach(([planet, data]) => {
+        drawCelestialBody(planet, data, { orbitLayer, bodyLayer }, centerX, centerY);
       });
-
+    })
+    .catch(error => {
+      console.error('Could not load planet positions:', error);
     });
 }
 
-function drawCelestialBody(planet, data, centerCanvasX, centerCanvasY) {
-  const scaleFactor = 16;
-  const { A, ec, coordinates, color, scale, W } = data;
-  var X = -coordinates[0] * scaleFactor + centerCanvasX;
-  var Y = coordinates[1] * scaleFactor + centerCanvasY; // Need non-negative Y for counter-clockwise rotation
-
-  if (planet == "neptune") {
-    return
-  } else if (planet == "uranus") {
-    var className = "hide";
+let solarResizeFrameId;
+window.addEventListener('resize', () => {
+  if (solarResizeFrameId) {
+    cancelAnimationFrame(solarResizeFrameId);
   }
-  else {
-    var className = "show";
-  }
-
-  // Draw each planet as a SVG circle
-  var circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-  circle.setAttribute("cx", X);
-  circle.setAttribute("cy", Y);
-  circle.setAttribute("r", scale * 3);
-  circle.setAttribute("stroke", "none");
-  circle.setAttribute("fill", color);
-  circle.setAttribute("class", className);
-  svg.appendChild(circle);
-
-  // Find axes of ellipse
-  const semimajorAxis = A * scaleFactor;
-  const semiminorAxis = Math.sqrt((semimajorAxis * semimajorAxis) * (1 - ec * ec));
-
-  // Calculate distance between foci points in pixels for center
-  const c = A * ec * scaleFactor;
-  const fociX = c * Math.sin(W);
-  const fociY = c * Math.cos(W)
-
-  // Create a path element with the SVG namespace
-  var ellipse = document.createElementNS("http://www.w3.org/2000/svg", "ellipse");
-  ellipse.setAttribute("cx", centerCanvasX - fociX / 2);
-  ellipse.setAttribute("cy", centerCanvasY + fociY / 2);
-  ellipse.setAttribute("rx", semimajorAxis);
-  ellipse.setAttribute("ry", semiminorAxis);
-  ellipse.setAttribute("fill", "none");
-  ellipse.setAttribute("stroke", color);
-  ellipse.setAttribute("stroke-width", "1");
-  ellipse.setAttribute("class", className);
-  svg.appendChild(ellipse);
-}
-
-// MIGHT NEED TO FIX THIS IN CSS SO IT UPDATES NATURALLY AND NOT WEIRDLY
-// Update planets and redraw on resize
-// window.addEventListener('resize', () => {
-//   // Remove all SVG elements
-//   const svg = document.getElementById('solarSystemSVG');
-//   while (svg.firstChild) {
-//     svg.removeChild(svg.firstChild);
-//   }
-
-//   drawSolarSystem();
-// });
+  solarResizeFrameId = requestAnimationFrame(() => {
+    drawSolarSystem();
+  });
+});
 
 // Initial drawing
 drawSolarSystem();

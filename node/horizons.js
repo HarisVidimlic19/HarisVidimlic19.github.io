@@ -159,6 +159,8 @@ async function writeData() {
         planetsData[planet] = {
             A: data.A,
             ec: data.ec,
+            IN: data.IN,
+            OM: data.OM,
             coordinates: calculateCoord(data),
             color: getPlanetColor(planet),
             scale: getPlanetScale(planet),
