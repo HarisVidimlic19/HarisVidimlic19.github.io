@@ -22,6 +22,8 @@ jobs:
     if: ${{ github.event.workflow_run.conclusion != 'success' }}
     needs: set-server
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
     steps:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
@@ -35,5 +37,9 @@ jobs:
           git config --global user.name 'HarisVidimlic19'
           git config --global user.email 'hvidimlic1234@hotmail.com' 
           git add .
-          git commit -am "Automated data import"
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git commit -m "Automated data import"
           git push

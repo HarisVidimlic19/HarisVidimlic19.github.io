@@ -3,6 +3,10 @@ import { writeFileSync } from 'fs';
 import moment from 'moment-timezone';
 import fetch from 'node-fetch';
 
+const HORIZONS_API_URL = 'https://ssd.jpl.nasa.gov/api/horizons_file.api';
+const REQUEST_TIMEOUT_MS = 20000;
+const MAX_RETRIES = 2;
+
 // Specify date range for calculations
 const today = moment().tz('America/Toronto');
 const dt1 = today.format('Y-M-D');
@@ -153,7 +157,7 @@ async function writeData() {
         const dataString = planetInput.get(planet).dataString(dt1, dt2);
 
         // Call JPL Horizons API for planet data in data string
-        const data = await getPlanetData(dataString, dt1);
+        const data = await getPlanetData(dataString, planet);
 
         // Extract relevant information and calculate positions
         planetsData[planet] = {
@@ -172,19 +176,23 @@ async function writeData() {
     console.log('Planet data pre-calculated and saved to planetPositions.json');
 }
 
-const getPlanetData = async (planetDataString) => {
-    // Make the POST call to the JPL Horizons API
-    const response = await makeRequest(
-        'https://ssd.jpl.nasa.gov/api/horizons_file.api',
-        {
-            format: 'text',
-            input: planetDataString,
-        }
-    );
+const getPlanetData = async (planetDataString, planetName) => {
+    const response = await makeRequestWithRetry(HORIZONS_API_URL, {
+        format: 'text',
+        input: planetDataString,
+    });
+
     // Parse the API response to extract relevant data
     // Find the information we want for json file
     const parsed = get_string_between(response, '$$SOE', '$$EOE');
+    if (!parsed) {
+        throw new Error(`Could not parse orbital elements for ${planetName}`);
+    }
+
     const values = parsed.split(',');
+    if (values.length < 12) {
+        throw new Error(`Unexpected Horizons response format for ${planetName}`);
+    }
 
     // Extract relevant values for calculations
     const ec = parseFloat(values[2]);
@@ -201,25 +209,26 @@ const getPlanetData = async (planetDataString) => {
 function calculateCoord(data) {
     const { ec, IN, OM, W, MA, A } = data;
 
-    // Implement Keplerian orbital mechanics calculations
-    // Calculate orbital elements
-    var M = MA;
-    var E0 = M + ec * Math.sin(M) * (1 + ec * Math.cos(M));
-    var E = M;
+    // Solve Kepler's equation with bounded Newton-Raphson iterations.
+    const M = MA;
+    let E = M + ec * Math.sin(M) * (1 + ec * Math.cos(M));
 
-    // Iterate to find E
-    while (Math.abs(E - E0) > 0.0005) {
-        E = E0 - (E0 - ec * Math.sin(E0) - M) / (1 - ec * Math.cos(E0))
-        E0 = E;
+    for (let i = 0; i < 35; i += 1) {
+        const denominator = 1 - ec * Math.cos(E);
+        const delta = (E - ec * Math.sin(E) - M) / denominator;
+        E -= delta;
+        if (Math.abs(delta) < 1e-8) {
+            break;
+        }
     }
 
     // Calculate true anomaly and distance
-    var v = 2 * Math.atan2(Math.sqrt(1 + ec) * Math.sin(E / 2), Math.sqrt(1 - ec) * Math.cos(E / 2));
-    var r = A * (1 - ec * Math.cos(E));
+    const v = 2 * Math.atan2(Math.sqrt(1 + ec) * Math.sin(E / 2), Math.sqrt(1 - ec) * Math.cos(E / 2));
+    const r = A * (1 - ec * Math.cos(E));
 
     // Convert to Cartesian coordinates
-    var x = r * (Math.cos(v + W) * Math.cos(OM) - Math.sin(v + W) * Math.cos(IN) * Math.sin(OM));
-    var y = r * (Math.cos(v + W) * Math.sin(OM) + Math.sin(v + W) * Math.cos(IN) * Math.cos(OM));
+    const x = r * (Math.cos(v + W) * Math.cos(OM) - Math.sin(v + W) * Math.cos(IN) * Math.sin(OM));
+    const y = r * (Math.cos(v + W) * Math.sin(OM) + Math.sin(v + W) * Math.cos(IN) * Math.cos(OM));
 
     return [x, y];
 }
@@ -269,36 +278,47 @@ function getPlanetColor(planet) {
 }
 
 
-// Define a function that returns a promise for the request
-function makeRequest(url, form) {
-    return new Promise((resolve, reject) => {
-        // Use node-fetch to make a POST request with form data
-        fetch(url, {
+async function makeRequestWithRetry(url, form) {
+    let lastError;
+
+    for (let attempt = 0; attempt <= MAX_RETRIES; attempt += 1) {
+        try {
+            return await makeRequest(url, form);
+        } catch (error) {
+            lastError = error;
+            if (attempt < MAX_RETRIES) {
+                const backoffMs = 700 * (attempt + 1);
+                await new Promise(resolve => setTimeout(resolve, backoffMs));
+            }
+        }
+    }
+
+    throw lastError;
+}
+
+async function makeRequest(url, form) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS);
+
+    try {
+        const response = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/x-www-form-urlencoded'
             },
-            body: new URLSearchParams(form)
-        })
-        .then(response => {
-            // Check if the response is ok
-            if (response.ok) {
-                // Return the response body as text
-                return response.text();
-            } else {
-                // Reject the promise with the status text
-                reject(response.statusText);
-            }
-        })
-        .then(body => {
-            // Resolve the promise with the body
-            resolve(body);
-        })
-        .catch(error => {
-            // Reject the promise with the error
-            reject(error);
+            body: new URLSearchParams(form),
+            signal: controller.signal
         });
-    });
+
+        const body = await response.text();
+        if (!response.ok) {
+            throw new Error(`Horizons API error ${response.status}: ${body || response.statusText}`);
+        }
+
+        return body;
+    } finally {
+        clearTimeout(timeoutId);
+    }
 }
 
 
